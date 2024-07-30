@@ -1,0 +1,86 @@
+#page replacement algorithm
+import random
+
+# Function to simulate FIFO page replacement algorithm
+def fifo(pages, frame_size):
+    frame = []
+    page_faults = 0
+
+    for page in pages:
+        if page not in frame:
+            if len(frame) < frame_size:
+                frame.append(page)
+            else:
+                frame.pop(0)
+                frame.append(page)
+            page_faults += 1
+
+    return page_faults
+
+# Function to simulate LRU page replacement algorithm
+def lru(pages, frame_size):
+    frame = []
+    page_faults = 0
+
+    for page in pages:
+        if page not in frame:
+            if len(frame) < frame_size:
+                frame.append(page)
+            else:
+                lru_index = 0
+                for i in range(1, len(frame)):
+                    if frame[i] not in pages[:i]:
+                        lru_index = i
+                        break
+                frame[lru_index] = page
+            page_faults += 1
+        else:
+            frame.remove(page)
+            frame.append(page)
+
+    return page_faults
+
+# Function to simulate Optimal page replacement algorithm
+def optimal(pages, frame_size):
+    frame = []
+    page_faults = 0
+
+    for i in range(len(pages)):    
+        if pages[i] not in frame:
+            if len(frame) < frame_size:
+                frame.append(pages[i])
+            else:
+                furthest = 0
+                index = -1
+                for j in range(len(frame)):
+                    if frame[j] not in pages[i:]:
+                        index = j
+                        break
+                    else:
+                        next_occurrence = pages[i:].index(frame[j])
+                        if next_occurrence > furthest:
+                            furthest = next_occurrence
+                            index = j
+                frame[index] = pages[i]
+            page_faults += 1
+
+    return page_faults
+
+# Main function to run the comparison
+def compare_algorithms(pages, frame_size):
+    fifo_faults = fifo(pages, frame_size)
+    lru_faults = lru(pages, frame_size)
+    optimal_faults = optimal(pages, frame_size)
+    d={fifo_faults:'FIFO',lru_faults:'LRU',optimal_faults:'optimal'}
+
+    print(f"Number of page faults with FIFO: {fifo_faults}")
+    print(f"Number of page faults with LRU: {lru_faults}")
+    print(f"Number of page faults with Optimal: {optimal_faults}")
+    m=min(fifo_faults,lru_faults,optimal_faults)
+    print("Best algorithm: ",d[m])
+
+# Example usage
+pages = [7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1]
+frame_size = 3
+
+compare_algorithms(pages, frame_size)
